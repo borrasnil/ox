@@ -57,5 +57,11 @@ fn main() {
     let format = args.format;
     let value = args.value;
 
-    println!("{:?}", transform(&value, format));
+    match transform(&value, format) {
+        Ok(result) => println!("{}", result),
+        Err(e) => {
+            eprintln!("error: {}", e);
+            std::process::exit(1);
+        }
+    }
 }
