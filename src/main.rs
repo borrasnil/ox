@@ -28,6 +28,9 @@ struct Args {
 
     #[arg(short, long, value_parser = Format::from_str, default_value = "0")]
     format: Format,
+
+    #[arg(short, long, default_value_t = false)]
+    no_prefix: bool,
 }
 
 fn transform(value: &str, format: Format) -> Result<String, OxError> {
@@ -44,9 +47,9 @@ fn transform(value: &str, format: Format) -> Result<String, OxError> {
     let num = i64::from_str_radix(digits, base).map_err(|_| OxError::ParsingFailed)?;
 
     match format {
-        Format::Binary => Ok(format!("0b{:b}", num)),
-        Format::Hexadecimal => Ok(format!("0x{:x}", num)),
-        Format::Octal => Ok(format!("0o{:o}", num)),
+        Format::Binary => Ok(format!("{:b}", num)),
+        Format::Hexadecimal => Ok(format!("{:x}", num)),
+        Format::Octal => Ok(format!("{:o}", num)),
         Format::Decimal => Ok(format!("{}", num)),
     }
 }
@@ -57,11 +60,20 @@ fn main() {
     let format = args.format;
     let value = args.value;
 
-    match transform(&value, format) {
-        Ok(result) => println!("{}", result),
-        Err(e) => {
-            eprintln!("error: {}", e);
-            std::process::exit(1);
-        }
+    let result = transform(&value, format.clone())
+        .map_err(|e| eprintln!("error: {}", e))
+        .unwrap();
+
+    // Print without 0x, 0b, 0o prefixes
+    if args.no_prefix {
+        println!("{}", result);
+        std::process::exit(0);
+    }
+
+    match format {
+        Format::Binary => println!("0b{}", result),
+        Format::Hexadecimal => println!("0x{}", result),
+        Format::Octal => println!("0o{}", result),
+        Format::Decimal => println!("{}", result),
     }
 }
