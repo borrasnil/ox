@@ -41,12 +41,12 @@ fn transform(value: &str, format: Format) -> Result<String, OxError> {
         (value, 10)
     };
 
-    let num = i64::from_str_radix(digits, base).map_err(|_| OxError::ParsingFailed)?; // adapt to your OxError variants
+    let num = i64::from_str_radix(digits, base).map_err(|_| OxError::ParsingFailed)?;
 
     match format {
-        Format::Binary => Ok(format!("{:b}", num)),
-        Format::Hexadecimal => Ok(format!("{:x}", num)),
-        Format::Octal => Ok(format!("{:o}", num)),
+        Format::Binary => Ok(format!("0b{:b}", num)),
+        Format::Hexadecimal => Ok(format!("0x{:x}", num)),
+        Format::Octal => Ok(format!("0o{:o}", num)),
         Format::Decimal => Ok(format!("{}", num)),
     }
 }
